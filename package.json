@@ -3,16 +3,16 @@
     "description": "A plugin to help ballerina conformance test writers",
     "author": "KRV Perera",
     "license": "MIT",
-    "version": "0.8.5",
+    "version": "0.8.6",
     "icon" : "images/Icon.png",
     "repository": {
         "type": "git",
         "url": "https://github.com/KRVPerera/balty"
     },
     "publisher": "krvperera",
-    "categories": [],
+    "categories": ["Programming Languages", "Snippets", "Other"],
     "keywords": [
-        "multi-root ready"
+        "balt", "ballerina", "spec-conformance"
     ],
     "engines": {
         "vscode": "^1.43.0"
