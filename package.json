@@ -14,6 +14,7 @@
     "Snippets",
     "Formatters"
   ],
+  "icon": "images/icon.png",
   "keywords": [
     "multi-root ready"
   ],
