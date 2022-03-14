@@ -17,7 +17,10 @@
       "include": "#header-description"
     },
     {
-      "include": "#header-labels"
+      "include": "#header-description"
+    },
+    {
+      "include": "#header-fail-issue"
     },
     {
       "include": "#inline-bal-block"
@@ -43,6 +46,10 @@
     "header-labels": {
       "match": "Labels",
       "name": "keyword.labels"
+    },
+    "header-fail-issue": {
+      "match": "Fail-Issue",
+      "name": "keyword.fail-issue"
     },
     "test-type": {
       "match": "(?Test-Case:)\\s*\\w+",
