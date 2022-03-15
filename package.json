@@ -52,8 +52,12 @@
         "language": "balt",
         "scopeName": "source.balt",
         "path": "./syntaxes/balt.json",
+        "source.ballerina": "ballerina",
         "embeddedLanguages": {
-          "meta.embedded.inline.bal": "ballerina"
+          "meta.embedded.block.ballerina": "ballerina"
+        },
+        "tokenTypes": {
+          "meta.embedded.block.ballerina": "other"
         }
       },
       {
@@ -64,14 +68,14 @@
           "source.ballerina"
         ],
         "embeddedLanguages": {
-          "meta.embedded.inline.bal": "ballerina"
+          "meta.embedded.block.ballerina": "ballerina"
         }
       }
     ],
     "snippets": [
       {
         "language": "source.balt",
-        "path": "./snippets/balty.json"
+        "path": "./snippets/balt.json"
       }
     ],
     "activationEvents": [

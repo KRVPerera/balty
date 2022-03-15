@@ -1,22 +1,36 @@
 {
-    "scopeName": "comment.annotation.injection",
-    "injectionSelector": "L:comment",
-    "patterns": [
-      {
-        "include": "#todo-keyword"
-      },
-      {
-        "include": "#output-keyword"
-      }
-    ],
-    "repository": {
-      "todo-keyword": {
-        "match": "TODO",
-        "name": "keyword.todo"
-      },
-      "output-keyword": {
-          "match": "output",
-          "name": "keyword.output"
-      }
+  "scopeName": "todo-comment.injection",
+  "injectionSelector": ["L:comment", "L:meta.embedded.block.ballerina"],
+  "patterns": [
+    {
+      "include": "#todo-keyword"
+    },
+    {
+      "include": "#output-keyword"
+    },
+    {
+      "include": "#panic-keyword"
+    },
+    {
+      "include": "#error-keyword"
+    }
+  ],
+  "repository": {
+    "todo-keyword": {
+      "match": "TODO",
+      "name": "keyword.todo"
+    },
+    "output-keyword": {
+      "match": "@output",
+      "name": "keyword.output"
+    },
+    "panic-keyword": {
+      "match": "@panic",
+      "name": "keyword.panic"
+    },
+    "error-keyword": {
+      "match": "@error",
+      "name": "keyword.error"
     }
   }
+}

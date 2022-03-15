@@ -5,16 +5,13 @@
   "foldingStopMarker": "^\\s*\\}",
   "patterns": [
     {
+      "include": "#comment"
+    },
+    {
       "include": "#todo-keyword"
     },
     {
-      "include": "#bal-body-block"
-    },
-    {
-      "include": "#header-test-case"
-    },
-    {
-      "include": "#header-description"
+      "include": "#header-test"
     },
     {
       "include": "#header-description"
@@ -23,29 +20,55 @@
       "include": "#header-fail-issue"
     },
     {
-      "include": "#inline-bal-block"
+      "include": "#label-list"
+    },
+    {
+      "include": "#bal-body-block"
     }
   ],
   "repository": {
+    "comment": {
+      "begin": "//",
+      "captures": {
+        "0": {
+          "name": "punctuation.definition.comment.balt"
+        }
+      },
+      "end": "\\n",
+      "name": "comment.balt"
+    },
     "todo-keyword": {
       "match": "TODO",
       "name": "keyword.todo.balt"
     },
-    "function": {
-      "match": "function",
-      "name": "keyword.function"
+    "header-test": {
+      "begin": "(Test-Case):\\s(\\w+)",
+      "beginCaptures": {
+        "1": { "name": "keyword.test-case" },
+        "2": { "name": "entity.name.type.enum" }
+      },
+      "end": "\\n",
+      "name": "header-test",
+      "patterns": [{ "include": "#header-test-case" }]
     },
+
     "header-test-case": {
       "match": "Test-Case",
       "name": "keyword.test-case"
     },
     "header-description": {
+      "begin": "(Description):\\s(.*)",
+      "beginCaptures": {
+        "1": { "name": "keyword.description" },
+        "2": { "name": "comment" }
+      },
+      "end": "\\n",
+      "name": "header-test",
+      "patterns": [{ "include": "#header-test-case" }]
+    },
+    "description": {
       "match": "Description",
       "name": "keyword.description"
-    },
-    "header-labels": {
-      "match": "Labels",
-      "name": "keyword.labels"
     },
     "header-fail-issue": {
       "match": "Fail-Issue",
@@ -55,25 +78,35 @@
       "match": "(?Test-Case:)\\s*\\w+",
       "name": "constant.test.type"
     },
+    "label": {
+      "patterns": [{ "include": "#multi-word-label" }, { "include": "#word" }],
+      "name": "entity.name.variable"
+    },
+    "word": {
+      "match": "\\w+",
+      "name": "entity.name.variable"
+    },
+    "multi-word-label": {
+      "match": "\\w+(-(\\w+))+",
+      "name": "entity.name.variable"
+    },
     "label-list": {
-      "match": "(\\w+(-\\w+)*)(,\\s(\\w+(-\\w+)*))*",
-      "name": "label.list"
+      "begin": "(Labels:)",
+      "beginCaptures": {
+        "1": { "name": "keyword" }
+      },
+      "end": "\\n",
+      "name": "label.list",
+      "patterns": [{ "include": "#label" }]
     },
     "bal-body-block": {
-      "begin": "^Labels:",
-      "end": "^\\Test-Case:\\s.*$",
-      "beginCaptures": {
-        "0": { "name": "keyword.labels" },
-        "1": { "name": "label.list" },
-        "2": { "name": "meta.embedded.block.bal.open" }
-      },
-      "endCaptures": {
-        "0": { "name": "keyword.test-case" },
-        "1": { "name": "constant.test.type" },
-        "2": { "name": "meta.embedded.block.bal.close" }
-      },
-      "name": "meta.embedded.inline.bal",
+      "begin": "^(type|function|class)",
+      "end": "^\\n",
+      "name": "meta.embedded.block.ballerina",
       "patterns": [
+        {
+          "include": "comment.annotation.injection"
+        },
         {
           "include": "source.ballerina"
         }
