@@ -3,7 +3,7 @@
   "description": "A plugin to help ballerina conformance test writers",
   "author": "KRV Perera",
   "license": "MIT",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/KRVPerera/balty"
