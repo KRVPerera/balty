@@ -5,6 +5,8 @@
 
 import * as path from "path";
 import { commands, window, workspace, ExtensionContext } from "vscode";
+import * as vscode from "vscode";
+import { subscribeToDocumentChanges, EMOJI_MENTION } from "./diagnostics";
 
 import {
   LanguageClient,
@@ -45,8 +47,13 @@ export function activate(context: ExtensionContext) {
     },
   };
 
+  const emojiDiagnostics = vscode.languages.createDiagnosticCollection("emoji");
+  context.subscriptions.push(emojiDiagnostics);
+
+  subscribeToDocumentChanges(context, emojiDiagnostics);
+
   // Create the language client and start the client.
-  client = new LanguageClient("balty", "Balty", serverOptions, clientOptions);
+  client = new LanguageClient("balt", "Balty", serverOptions, clientOptions);
 
   const disposable = commands.registerCommand(
     "balty.reorderLabels",
@@ -77,6 +84,12 @@ export function activate(context: ExtensionContext) {
 
   context.subscriptions.push(disposable);
 
+  context.subscriptions.push(
+    vscode.languages.registerCodeActionsProvider("balt", new Emojizer(), {
+      providedCodeActionKinds: Emojizer.providedCodeActionKinds,
+    })
+  );
+
   // Start the client. This will also launch the server
   client.start();
 }
@@ -86,4 +99,72 @@ export function deactivate(): Thenable<void> | undefined {
     return undefined;
   }
   return client.stop();
+}
+
+/**
+ * Provides code actions for converting :) to a smiley emoji.
+ */
+export class Emojizer implements vscode.CodeActionProvider {
+  public static readonly providedCodeActionKinds = [
+    vscode.CodeActionKind.Refactor,
+  ];
+
+  public provideCodeActions(
+    document: vscode.TextDocument,
+    range: vscode.Range
+  ): vscode.CodeAction[] | undefined {
+    if (!this.isAtStartOfSmiley(document, range)) {
+      return;
+    }
+
+    if (this.isAlreadySorted(document, range)) {
+      return;
+    }
+
+    const replaceWithSmileyCatFix = this.createFix(document, range, "😺");
+    const replaceWithSmileyFix = this.createFix(document, range, "😀");
+    replaceWithSmileyFix.isPreferred = true;
+    const replaceWithSmileyHankyFix = this.createFix(document, range, "💩");
+
+    return [
+      replaceWithSmileyCatFix,
+      replaceWithSmileyFix,
+      replaceWithSmileyHankyFix,
+    ];
+  }
+
+  isAlreadySorted(document: vscode.TextDocument, range: vscode.Range) {
+    const start = range.start;
+    const line = document.lineAt(start.line);
+    const labelsLine = line.text;
+    console.log(labelsLine);
+    return false;
+  }
+
+  private isAtStartOfSmiley(
+    document: vscode.TextDocument,
+    range: vscode.Range
+  ) {
+    const start = range.start;
+    const line = document.lineAt(start.line);
+    return line.text.startsWith("Labels:");
+  }
+
+  private createFix(
+    document: vscode.TextDocument,
+    range: vscode.Range,
+    emoji: string
+  ): vscode.CodeAction {
+    const fix = new vscode.CodeAction(
+      `Convert to ${emoji}`,
+      vscode.CodeActionKind.Refactor
+    );
+    fix.edit = new vscode.WorkspaceEdit();
+    fix.edit.replace(
+      document.uri,
+      new vscode.Range(range.start, range.start.translate(0, 2)),
+      emoji
+    );
+    return fix;
+  }
 }
