@@ -163,8 +163,6 @@ function checkDuplicateLabels(
         currentLocation + element.length
       );
 
-      const el = element.toString();
-
       const diagnostic = new vscode.Diagnostic(
         range,
         `Duplicate label : '${element}'`,

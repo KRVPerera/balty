@@ -188,8 +188,6 @@ export class Emojizer implements vscode.CodeActionProvider {
     const wordss = line.split(", ");
     const sorted = sortList(wordss);
 
-    console.log("PRV :", selection.text);
-    console.log(sorted);
     fix.edit.replace(
       document.uri,
       new vscode.Range(range.start, range.end),
