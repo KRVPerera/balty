@@ -6,7 +6,7 @@
 import * as path from "path";
 import { commands, window, workspace, ExtensionContext } from "vscode";
 import * as vscode from "vscode";
-import { subscribeToDocumentChanges, EMOJI_MENTION } from "./diagnostics";
+import { subscribeToDocumentChanges, LABEL_ORDER, LABELS } from "./diagnostics";
 
 import {
   LanguageClient,
@@ -16,6 +16,38 @@ import {
 } from "vscode-languageclient/node";
 
 let client: LanguageClient;
+
+function sortList(labels: Array<string>) {
+  return labels.sort();
+  // const sortedList: Array<string> = [];
+  // for (let index = 0; index < labels.length; index++) {
+  //   const elementA = labels[index];
+  //   for (let indexJ = index + 1; indexJ < labels.length; indexJ++) {
+  //     const elementB = labels[indexJ];
+  //     if (greaterThan(elementA, elementB)) {
+  //       sortedList.push(elementA);
+  //     }
+  //   }
+  // }
+  // return sortedList.join(", ").toString();
+}
+
+function greaterThan(stringA: string, stringB: string) {
+  const stringALength = stringA.length;
+  const stringBLength = stringB.length;
+  const minLength = Math.min(stringALength, stringBLength);
+  for (let index = 0; index < minLength; index++) {
+    const elA = stringA.charCodeAt(index);
+    const elB = stringB.charCodeAt(index);
+    if (elA < elB) {
+      return false;
+    } else if (elA > elB) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 export function activate(context: ExtensionContext) {
   // The server is implemented in node
@@ -66,17 +98,14 @@ export function activate(context: ExtensionContext) {
         const selection = editor.selection;
 
         // Get the word within the selection
-        const line = document.getText(selection).replace(/^\s+|\s+$/g, "");
-        const wordss = line
-          .split(",")
-          .map((word) => {
-            return word.replace(/^\s+|\s+$/g, "");
-          })
-          .sort()
-          .join(", ");
-        console.log(wordss);
+        const line = document
+          .getText(selection)
+          .replace(/^\s+|\s+$/g, "")
+          .trim();
+        const wordss = line.split(", ");
+        const sorted = sortList(wordss);
         editor.edit((editBuilder) => {
-          editBuilder.replace(selection, wordss);
+          editBuilder.replace(selection, sorted.join(", "));
         });
       }
     }
@@ -106,7 +135,7 @@ export function deactivate(): Thenable<void> | undefined {
  */
 export class Emojizer implements vscode.CodeActionProvider {
   public static readonly providedCodeActionKinds = [
-    vscode.CodeActionKind.Refactor,
+    vscode.CodeActionKind.QuickFix,
   ];
 
   public provideCodeActions(
@@ -117,28 +146,18 @@ export class Emojizer implements vscode.CodeActionProvider {
       return;
     }
 
-    if (this.isAlreadySorted(document, range)) {
-      return;
-    }
+    // editor.edit((editBuilder) => {
+    //   editBuilder.replace(selection, sorted.join(", "));
+    // });
 
-    const replaceWithSmileyCatFix = this.createFix(document, range, "😺");
-    const replaceWithSmileyFix = this.createFix(document, range, "😀");
+    const replaceWithSmileyFix = this.createFix(
+      document,
+      range,
+      "Sort the labels"
+    );
     replaceWithSmileyFix.isPreferred = true;
-    const replaceWithSmileyHankyFix = this.createFix(document, range, "💩");
 
-    return [
-      replaceWithSmileyCatFix,
-      replaceWithSmileyFix,
-      replaceWithSmileyHankyFix,
-    ];
-  }
-
-  isAlreadySorted(document: vscode.TextDocument, range: vscode.Range) {
-    const start = range.start;
-    const line = document.lineAt(start.line);
-    const labelsLine = line.text;
-    console.log(labelsLine);
-    return false;
+    return [replaceWithSmileyFix];
   }
 
   private isAtStartOfSmiley(
@@ -156,14 +175,25 @@ export class Emojizer implements vscode.CodeActionProvider {
     emoji: string
   ): vscode.CodeAction {
     const fix = new vscode.CodeAction(
-      `Convert to ${emoji}`,
-      vscode.CodeActionKind.Refactor
+      `${emoji}`,
+      vscode.CodeActionKind.QuickFix
     );
     fix.edit = new vscode.WorkspaceEdit();
+
+    const selection = document.lineAt(range.start);
+
+    // // Get the word within the selection
+    const noLabels = selection.text.substring(7);
+    const line = noLabels.replace(/^\s+|\s+$/g, "").trim();
+    const wordss = line.split(", ");
+    const sorted = sortList(wordss);
+
+    console.log("PRV :", selection.text);
+    console.log(sorted);
     fix.edit.replace(
       document.uri,
-      new vscode.Range(range.start, range.start.translate(0, 2)),
-      emoji
+      new vscode.Range(range.start, range.end),
+      sorted.join(", ")
     );
     return fix;
   }
